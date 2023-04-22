@@ -7,9 +7,7 @@ namespace prog
   class Image
   {
   private:
-    Color** data;
-    int w_;
-    int h_;
+    // TODO: define private fields for image state
   public:
     Image(int w, int h, const Color &fill = {255, 255, 255});
     ~Image();
