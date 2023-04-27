@@ -125,6 +125,10 @@ namespace prog {
             if (command == "xpm2_open") {
                 xpm2_open();
                 continue;
+            }
+            if (command == "xpm2_save") {
+                xpm2_save();
+                continue;
             } 
 
         }
@@ -321,5 +325,11 @@ namespace prog {
         string filename;
         input >> filename;
         image = loadFromXPM2(filename);
+    }
+
+    void Script::xpm2_save() {
+        string filename;
+        input >> filename;
+        saveToXPM2(filename, image);
     }
 }

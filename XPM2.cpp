@@ -2,6 +2,8 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <unordered_set>
+#include <iomanip>
 #include "XPM2.hpp"
 
 namespace prog {
@@ -22,6 +24,16 @@ namespace prog {
         return result;
     }
 
+    std::string color_to_hex(Color color) {
+        std::stringstream stream;
+        stream << '#' << std::hex << std::setw(2) << std::setfill('0') << (int) color.red();
+        stream << std::hex << std::setw(2) << std::setfill('0') << (int) color.green();
+        stream << std::hex << std::setw(2) << std::setfill('0') << (int) color.blue();
+        std::string result = stream.str();
+        std::transform(result.begin(), result.end(), result.begin(), toupper);
+        return result;
+    }
+
     Image* loadFromXPM2(const std::string& file) {
         std::ifstream in {file};
         std::string line;
@@ -36,15 +48,9 @@ namespace prog {
 
         for (int i = 0; i < number_of_colors; i++) {
             std::getline(in, line, '\n');
-            std::istringstream in_line {line};
-            char c;
-            char c_type;
-            std::string color_str;
-            Color color;
-
-            in_line >> c >> c_type >> color_str;
-
-            color = hex_to_color(color_str);
+            char c = line[0];
+            std::string color_str = line.substr(4, 7);
+            Color color = hex_to_color(color_str);
 
             color_map[c] = color;
         }
@@ -61,6 +67,32 @@ namespace prog {
     }
 
     void saveToXPM2(const std::string& file, const Image* image) {
+        std::ofstream out {file};
+        std::map<std::string, char> color_map;
+        std::unordered_set<std::string> colors;
+        const std::string asciiStr = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
+        for (int ix = 0; ix < image->width(); ix++) {
+        for (int iy = 0; iy < image->height(); iy++) {
+            colors.insert(color_to_hex(image->at(ix, iy)));
+        }}
+        
+        out << "! XPM2\n";
+        out << image->width() << ' ' << image->height() << ' ' << colors.size() << ' ' << '1' << '\n';
+
+        int ascii_counter {0};
+        for (auto it = colors.begin(); it != colors.end(); it++) {
+            if (ascii_counter == asciiStr.size()) throw std::out_of_range("string out of range");
+            out << asciiStr[ascii_counter] << ' ' << 'c' << ' ' << *it << '\n';
+            color_map[*it] = asciiStr[ascii_counter];
+            ascii_counter++;
+        }
+
+        for (int iy = 0; iy < image->height(); iy++) {
+        for (int ix = 0; ix < image->width(); ix++) {
+            out << color_map[color_to_hex(image->at(ix, iy))];
+        }
+            out << '\n';
+        }
     }
 }
