@@ -1,5 +1,7 @@
 #include <iostream>
+#include <map>
 #include <fstream>
+#include <sstream>
 #include <algorithm>
 #include <vector>
 #include "Script.hpp"
@@ -119,7 +121,11 @@ namespace prog {
                 input >> ws;
                 median_filter(ws);
                 continue;
-            }  
+            }
+            if (command == "xpm2_open") {
+                xpm2_open();
+                continue;
+            } 
 
         }
     }
@@ -308,5 +314,12 @@ namespace prog {
 
         delete image;
         image = filtered_image;
+    }
+
+    void Script::xpm2_open() {
+        clear_image_if_any();
+        string filename;
+        input >> filename;
+        image = loadFromXPM2(filename);
     }
 }
