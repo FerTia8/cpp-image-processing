@@ -26,11 +26,14 @@ namespace prog {
 
     std::string color_to_hex(Color color) {
         std::stringstream stream;
+
         stream << '#' << std::hex << std::setw(2) << std::setfill('0') << (int) color.red();
         stream << std::hex << std::setw(2) << std::setfill('0') << (int) color.green();
         stream << std::hex << std::setw(2) << std::setfill('0') << (int) color.blue();
+
         std::string result = stream.str();
         std::transform(result.begin(), result.end(), result.begin(), toupper);
+
         return result;
     }
 
@@ -40,12 +43,13 @@ namespace prog {
         std::map<char, Color> color_map;
         int height {0}, width {0}, number_of_colors {0}, char_per_color {0};
 
-        std::getline(in, line, '\n');
+        std::getline(in, line, '\n'); //exclude the first line ("! XPM2")
         std::getline(in, line, '\n');
         std::istringstream in_line {line};
 
         in_line >> width >> height >> number_of_colors >> char_per_color;
 
+        //extract each color from a line and map it to a char
         for (int i = 0; i < number_of_colors; i++) {
             std::getline(in, line, '\n');
             char c = line[0];
@@ -55,8 +59,10 @@ namespace prog {
             color_map[c] = color;
         }
 
+        //create a new image with the given proportions
         Image* new_image = new Image(width, height);
 
+        //map each char to a point using
         for (int iy = 0; iy < height; iy++) {
             std::getline(in, line, '\n');
               
@@ -70,7 +76,7 @@ namespace prog {
         std::ofstream out {file};
         std::map<std::string, char> color_map;
         std::unordered_set<std::string> colors;
-        const std::string asciiStr = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+        const std::string ascii_str = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
         for (int ix = 0; ix < image->width(); ix++) {
         for (int iy = 0; iy < image->height(); iy++) {
@@ -81,10 +87,10 @@ namespace prog {
         out << image->width() << ' ' << image->height() << ' ' << colors.size() << ' ' << '1' << '\n';
 
         int ascii_counter {0};
-        for (auto it = colors.begin(); it != colors.end(); it++) {
-            if (ascii_counter == asciiStr.size()) throw std::out_of_range("string out of range");
-            out << asciiStr[ascii_counter] << ' ' << 'c' << ' ' << *it << '\n';
-            color_map[*it] = asciiStr[ascii_counter];
+        for (auto color : colors) {
+            if (ascii_counter == ascii_str.size()) throw std::out_of_range("string out of range");
+            out << ascii_str[ascii_counter] << ' ' << 'c' << ' ' << color << '\n';
+            color_map[color] = ascii_str[ascii_counter];
             ascii_counter++;
         }
 
