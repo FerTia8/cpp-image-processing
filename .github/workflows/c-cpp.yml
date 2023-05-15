@@ -26,10 +26,10 @@ jobs:
         else
           git config --global user.email github-actions@github.com
           git config --global user.name github-actions
+          git checkout -b "fix/${GITHUB_HEAD_REF##*/}/removeResiduals"
           rm -f test runscript test_log.txt
           git commit -a -m "[BOT] Github Actions deleted residual files!"
           git push origin HEAD:$(echo $GITHUB_HEAD_REF | sed 's/refs\/heads\///')
-          git commit --allow-empty -m "[DUMMY COMMIT] Action finishing executing!" && git push origin HEAD:$(echo $GITHUB_HEAD_REF | sed 's/refs\/heads\///')
         fi
 
     - name: Run MakeFile
@@ -37,3 +37,6 @@ jobs:
 
     - name: Run Tests
       run: ./test
+
+    - name: Commiting If Residual Files Found and All Tests Pass
+      run: git commit --allow-empty -m "[DUMMY COMMIT] Action finishing executing!" && git push origin HEAD:$(echo $GITHUB_HEAD_REF | sed 's/refs\/heads\///')
