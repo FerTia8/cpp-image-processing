@@ -25,8 +25,9 @@ jobs:
 
     - name: Run Tests
       run: |
-        ./test > test_log.txt 2>&1
-        if grep -q "Failed tests: 0" test_log.txt; then
+        ./test > test_output.txt 2>&1
+        cat test_output.txt
+        if grep -q "Failed tests: 0" test_output.txt; then
           echo "All tests passed!"
         else
           echo "Not all tests passed."
