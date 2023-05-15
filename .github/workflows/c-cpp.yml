@@ -35,5 +35,8 @@ jobs:
 
     - name: Commiting If Residual Files Found and All Tests Pass
       run: |
-        git commit -a -m "[BOT] Github Actions deleted residual files!"
+        git config --global user.email github-actions@github.com
+        git config --global user.name github-actions
+        rm -f test runscript test_log.txt
+        git commit -a -m "[BOT] Github Actions deleted residual files! Check has passed."
         git push origin HEAD:$(echo $GITHUB_HEAD_REF | sed 's/refs\/heads\///')
