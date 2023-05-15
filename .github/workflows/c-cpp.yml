@@ -17,26 +17,29 @@ jobs:
       with:
         ref: ${{ github.event.pull_request.head.sha }}
 
-    - name: Remove Residual Files for Make Execution if Found
-      run : |
+
+    - name: Remove Residual Files and Run MakeFile
+      run: |
         if [ ! -f test ] && [ ! -f runscript ] && [ ! -f test_log.txt ]; then
           echo "No residual files found, skipping commit."
         else
           git config --global user.email github-actions@github.com
           git config --global user.name github-actions
           rm -f test runscript test_log.txt
-        fi
-
-    - name: Run MakeFile
-      run: make
+        fi 
+        make
 
     - name: Run Tests
       run: ./test
 
     - name: Commiting If Residual Files Found and All Tests Pass
       run: |
-        git config --global user.email github-actions@github.com
-        git config --global user.name github-actions
-        rm -f test runscript test_log.txt
-        git commit -a -m "[BOT] Github Actions deleted residual files! Check has passed."
-        git push origin HEAD:$(echo $GITHUB_HEAD_REF | sed 's/refs\/heads\///')
+        if [ ! -f test ] && [ ! -f runscript ] && [ ! -f test_log.txt ]; then
+          echo "No residual files found, skipping commit."
+        else
+          git config --global user.email github-actions@github.com
+          git config --global user.name github-actions
+          rm -f test runscript test_log.txt
+          git commit -a -m "[BOT] Github Actions deleted residual files! Check has passed."
+          git push origin HEAD:$(echo $GITHUB_HEAD_REF | sed 's/refs\/heads\///')
+        fi
