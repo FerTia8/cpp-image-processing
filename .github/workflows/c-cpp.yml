@@ -15,8 +15,10 @@ jobs:
     - uses: actions/checkout@v3
     - name: Remove Residual Files
       run : |
-        rm -f test runscript test_log.txt
-        if [ -n "$(git status --porcelain)" ]; then
+        if [ ! -f test ] && [ ! -f runscript ] && [ ! -f test_log.txt ]; then
+          echo "No residual files found, skipping commit."
+        else
+          rm -f test runscript test_log.txt
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
           git commit -a -m "[Bot] Github Actions deleted residual files!"
