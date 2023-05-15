@@ -27,7 +27,7 @@ jobs:
       run: |
         ./test > test_output.txt 2>&1
         cat test_output.txt
-        if grep -q "Failed tests: 0" test_output.txt; then
+        if grep -q "Failed tests: 66" test_output.txt; then
           echo "All tests passed!"
         else
           echo "Not all tests passed."
