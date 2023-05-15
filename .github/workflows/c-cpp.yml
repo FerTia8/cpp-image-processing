@@ -27,8 +27,9 @@ jobs:
           git config --global user.email github-actions@github.com
           git config --global user.name github-actions
           rm -f test runscript test_log.txt
-          git commit -a -m "[Bot] Github Actions deleted residual files!"
+          git commit -a -m "[BOT] Github Actions deleted residual files!"
           git push origin HEAD:$(echo $GITHUB_HEAD_REF | sed 's/refs\/heads\///')
+          git commit --allow-empty -m "[DUMMY COMMIT] Action finishing executing!" && git push origin HEAD:$(echo $GITHUB_HEAD_REF | sed 's/refs\/heads\///')
         fi
 
     - name: Run MakeFile
