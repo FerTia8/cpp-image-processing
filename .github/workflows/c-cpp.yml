@@ -24,7 +24,15 @@ jobs:
         make
 
     - name: Run Tests
-      run: ./test
+      run: |
+        ./test > test_log.txt 2>&1
+        if grep -q "Failed tests: 0" test_log.txt; then
+          echo "All tests passed!"
+        else
+          echo "Not all tests passed."
+          exit 1
+        fi
+
 
     - name: Commiting If Residual Files Found and All Tests Pass
       run: |
