@@ -17,6 +17,8 @@ jobs:
         ref: ${{ github.event.pull_request.head.sha }}
 
     - name: Remove Residual Files
+      env: 
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       run : |
         if [ ! -f test ] && [ ! -f runscript ] && [ ! -f test_log.txt ]; then
           echo "No residual files found, skipping commit."
@@ -24,6 +26,10 @@ jobs:
           rm -f test runscript test_log.txt
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
+          git config --global push.default simple
+          git remote set-url origin "https://github.com/${{ github.repository }}"
+          git fetch
+          git checkout -B "${{ github.ref }}"
           git commit -a -m "[Bot] Github Actions deleted residual files!"
           git push origin HEAD:$(echo $GITHUB_HEAD_REF | sed 's/refs\/heads\///')
         fi
