@@ -2,34 +2,31 @@
 
 namespace prog {
     Color::Color() {
-
+        red_ = 0; green_ = 0; blue_ = 0;
     }
     Color::Color(const Color& other) {
-
+        red_ = other.red_; green_ = other.green_; blue_ = other.blue_;
     }
     Color::Color(rgb_value red, rgb_value green, rgb_value blue) {
-
+        red_ = red; green_ = green; blue_ = blue;
     }
     rgb_value Color::red() const {
-        return 0;
+        return red_;
     }
     rgb_value Color::green() const {
-        return 0;
+        return green_;
     }
     rgb_value Color::blue() const {
-        return 0;
+        return blue_;
     }
-
-    // TODO: remove this DUMMY variable once you have appropriate fields for representing colors.
-    rgb_value DUMMY_rgb_value = 0; 
 
     rgb_value& Color::red()  {
-        return DUMMY_rgb_value;
+        return red_;
     }
     rgb_value& Color::green()  {
-      return DUMMY_rgb_value;
+      return green_;
     }
     rgb_value& Color::blue()  {
-      return DUMMY_rgb_value;
+      return blue_;
     }
 }
