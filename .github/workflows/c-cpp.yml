@@ -20,13 +20,9 @@ jobs:
 
     - name: Remove Residual Files and Run MakeFile
       run: |
-        if [ ! -f test ] && [ ! -f runscript ] && [ ! -f test_log.txt ]; then
-          echo "No residual files found, skipping commit."
-        else
-          git config --global user.email github-actions@github.com
-          git config --global user.name github-actions
-          rm -f test runscript test_log.txt
-        fi 
+        git config --global user.email github-actions@github.com
+        git config --global user.name github-actions
+        rm -f test runscript test_log.txt
         make
 
     - name: Run Tests
