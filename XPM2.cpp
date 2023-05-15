@@ -4,6 +4,7 @@
 #include <fstream>
 #include <unordered_set>
 #include <iomanip>
+#include <algorithm>
 #include "XPM2.hpp"
 
 namespace prog {
@@ -88,7 +89,7 @@ namespace prog {
 
         int ascii_counter {0};
         for (auto color : colors) {
-            if (ascii_counter == ascii_str.size()) throw std::out_of_range("string out of range");
+            if (ascii_counter == (int) ascii_str.size()) throw std::out_of_range("string out of range");
             out << ascii_str[ascii_counter] << ' ' << 'c' << ' ' << color << '\n';
             color_map[color] = ascii_str[ascii_counter];
             ascii_counter++;
