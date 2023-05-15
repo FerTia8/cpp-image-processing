@@ -25,7 +25,7 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
           git commit -a -m "[Bot] Github Actions deleted residual files!"
-          git push
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
         fi
 
     - name: Run MakeFile
