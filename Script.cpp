@@ -4,6 +4,7 @@
 #include <sstream>
 #include <algorithm>
 #include <vector>
+#include <future>
 #include "Script.hpp"
 #include "PNG.hpp"
 #include "XPM2.hpp"
@@ -11,20 +12,6 @@
 using namespace std;
 
 namespace prog {
-    rgb_value median(vector<rgb_value> v) {
-        int middle = v.size() / 2;
-        
-        std::sort(v.begin(), v.end());
-
-        if (v.size() % 2 == 0) {
-            int left = v[middle - 1];
-            int right = v[middle];
-            return (left + right) / 2;
-        } 
-        else {
-            return v[middle];
-        }
-    }
     // Use to read color values from a script file.
     istream& operator>>(istream& input, Color& c) {
         int r, g, b;
@@ -34,7 +21,6 @@ namespace prog {
         c.blue() = b;
         return input;
     }
-
     Script::Script(const string& filename) :
             image(nullptr), input(filename) {
 
@@ -48,7 +34,6 @@ namespace prog {
     Script::~Script() {
         clear_image_if_any();
     }
-
     void Script::run() {
         string command;
         while (input >> command) {
@@ -143,17 +128,29 @@ namespace prog {
         input >> filename;
         saveToPNG(filename, image);
     }
-    void Script::invert() {
-        //inverts the colors of the current image
-        for (int x = 0; x < image->width(); x++) {
-        for (int y = 0; y < image->height(); y++) {
-            Color& pixel = image->at(x, y);
+    void invert_thread(int x, int y, int mx, int my, Image* image) {
+        for (int ix = x; ix < mx; ix++) {
+        for (int iy = y; iy < my; iy++) {
+            Color& pixel = image->at(ix, iy);
             pixel.red() = 255 - pixel.red();
             pixel.green() = 255 - pixel.green();
             pixel.blue() = 255 - pixel.blue();
         }}
     }
+    void Script::invert() {
+        //inverts the colors of the current image
 
+        //multi-threading
+        std::future<void> ft1 = std::async(invert_thread, 0, 0, image->width() / 2, image->height() / 2, image);
+        std::future<void> ft2 = std::async(invert_thread, image->width() / 2, 0, image->width(), image->height() / 2, image);
+        std::future<void> ft3 = std::async(invert_thread, 0, image->height() / 2, image->width() / 2, image->height(), image);
+        std::future<void> ft4 = std::async(invert_thread, image->width() / 2, image->height() / 2, image->width(), image->height(), image);
+
+        ft1.wait();
+        ft2.wait();
+        ft3.wait();
+        ft4.wait();
+    }
     void Script::to_gray_scale() {
         //gray scales the current image
         for (int x = 0; x < image->width(); x++) {
@@ -163,9 +160,8 @@ namespace prog {
             pixel = {v, v, v};
         }}
     }
-
     void Script::replace() {
-        //...
+        //replaces the color (r1, g1, b1) for (r2, g2, b2)
         int r1, g1, b1, r2, g2, b2;
         input >> r1 >> g1 >> b1 >> r2 >> g2 >> b2;
 
@@ -180,7 +176,6 @@ namespace prog {
             }
         }}
     }
-
     void Script::fill() {
         //...
         int x, y, w, h, r, g, b;
@@ -192,7 +187,6 @@ namespace prog {
             image->at(ix, iy) = fill_;
         }}
     }
-
     void Script::h_mirror() {
         //...
         for (int ix = 0; ix < image->width() / 2; ix++) {
@@ -205,7 +199,6 @@ namespace prog {
             right = temp;
         }}
     }
-
     void Script::v_mirror() {
         //...
         for (int ix = 0; ix < image->width(); ix++) {
@@ -218,7 +211,15 @@ namespace prog {
             right = temp;
         }}
     }
+    void add_thread(int x, int y, int start_x, int start_y, int end_x, int end_y, int r, int g, int b, Image* im, Image* image) {
+        for (int ix = start_x; ix < end_x; ix++) {
+        for (int iy = start_y; iy < end_y; iy++) {
+            const Color pixel_from = im->at(ix, iy);
 
+            if (pixel_from.red() == r && pixel_from.green() == g && pixel_from.blue() == b) continue;
+            else image->at(ix - start_x + x, iy - start_y + y) = pixel_from;
+        }}
+    }
     void Script::add() {
         //...
         std::string filename;
@@ -226,17 +227,18 @@ namespace prog {
         input >> filename >> r >> g >> b >> x >> y;
         Image* im = loadFromPNG(filename);
 
-        for (int ix = x; ix < im->width() + x; ix++) {
-        for (int iy = y; iy < im->height() + y; iy++) {
-            const Color pixel_from = im->at(ix - x, iy - y);
+        std::future<void> ft1 = std::async(add_thread, x, y, 0, 0, im->width() / 2, im->height() / 2, r, g, b, im, image);
+        std::future<void> ft2 = std::async(add_thread, x + im->width() / 2, y, im->width() / 2, 0, im->width(), im->height() / 2, r, g, b, im, image);
+        std::future<void> ft3 = std::async(add_thread, x, y + im->height() / 2, 0, im->height() / 2, im->width() / 2, im->height(), r, g, b, im, image);
+        std::future<void> ft4 = std::async(add_thread, x + im->width() / 2, y + im->height() / 2, im->width() / 2, im->height() / 2, im->width(), im->height(), r, g, b, im, image);
 
-            if (pixel_from.red() == r && pixel_from.green() == g && pixel_from.blue() == b) continue;
-            else image->at(ix, iy) = pixel_from;
-        }}
+        ft1.wait();
+        ft2.wait();
+        ft3.wait();
+        ft4.wait();
 
         delete im;
     }
-
     void Script::crop() {
         //...
         int x, y, w, h;
@@ -277,29 +279,36 @@ namespace prog {
         delete image;
         image = rotated_image;
     }
+    rgb_value median(vector<rgb_value> v) {
+        int middle = v.size() / 2;
+        
+        std::sort(v.begin(), v.end());
 
-    void Script::median_filter() {
-        //...
-        int ws;
-        input >> ws;
-        Image* filtered_image = new Image(image->width(), image->height());
-
-        //iterate through every point
-        for (int ix = 0; ix < image->width(); ix++) {
-        for (int iy = 0; iy < image->height(); iy++) {
+        if (v.size() % 2 == 0) {
+            int left = v[middle - 1];
+            int right = v[middle];
+            return (left + right) / 2;
+        } 
+        else {
+            return v[middle];
+        }
+    }
+    void filter_thread(int x, int y, int ws, int mx, int my, Image* original, Image* img) {
+        //iterate through every point inside the given boundaries
+        for (int ix = x; ix < mx; ix++) {
+        for (int iy = y; iy < my; iy++) {
             vector<rgb_value> red_values, green_values, blue_values;
             rgb_value r_, g_, b_;
                 
             //iterate through every (valid) neighborhood point
             for (int wx = - ws / 2; wx <= ws / 2; wx++) {
-            if (ix + wx < 0 || ix + wx >= image->width()) continue;
+            if (ix + wx < 0 || ix + wx >= original->width()) continue;
 
             for (int wy = - ws / 2; wy <= ws / 2; wy++) {
-            if (iy + wy < 0 || iy + wy >= image->height()) continue;
-                red_values.push_back(image->at(ix + wx, iy + wy).red());
-                green_values.push_back(image->at(ix + wx, iy + wy).green());
-                blue_values.push_back(image->at(ix + wx, iy + wy).blue());
-
+            if (iy + wy < 0 || iy + wy >= original->height()) continue;
+                red_values.push_back(original->at(ix + wx, iy + wy).red());
+                green_values.push_back(original->at(ix + wx, iy + wy).green());
+                blue_values.push_back(original->at(ix + wx, iy + wy).blue());
             }}
 
             r_ = median(red_values);
@@ -307,13 +316,29 @@ namespace prog {
             b_ = median(blue_values);
 
             //store the median value in a new image
-            filtered_image->at(ix, iy) = {r_, g_, b_};
+            img->at(ix, iy) = {r_, g_, b_};
         }}
+    }
+    void Script::median_filter() {
+        //...
+        int ws;
+        input >> ws;
+        Image* filtered_image = new Image(image->width(), image->height());
+
+        //multi-threading
+        std::future<void> ft1 = std::async(filter_thread, 0, 0, ws, image->width() / 2, image->height() / 2, image, filtered_image); //first quarter
+        std::future<void> ft2 = std::async(filter_thread, image->width() / 2, 0, ws, image->width(), image->height() / 2, image, filtered_image); //second quarter
+        std::future<void> ft3 = std::async(filter_thread, 0, image->height() / 2, ws, image->width() / 2, image->height(), image, filtered_image); //third quarter
+        std::future<void> ft4 = std::async(filter_thread, image->width() / 2, image->height() / 2, ws, image->width(), image->height(), image, filtered_image); //forth quarter
+
+        ft1.wait();
+        ft2.wait();
+        ft3.wait();
+        ft4.wait();
 
         delete image;
         image = filtered_image;
     }
-
     void Script::xpm2_open() {
         //...
         clear_image_if_any();
@@ -321,7 +346,6 @@ namespace prog {
         input >> filename;
         image = loadFromXPM2(filename);
     }
-
     void Script::xpm2_save() {
         //...
         string filename;
