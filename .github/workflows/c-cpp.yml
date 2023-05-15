@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
 
@@ -25,7 +28,7 @@ jobs:
           git config --global user.name github-actions
           rm -f test runscript test_log.txt
           git commit -a -m "[Bot] Github Actions deleted residual files!"
-          git push
+          git push origin HEAD:$(echo $GITHUB_HEAD_REF | sed 's/refs\/heads\///')
         fi
 
     - name: Run MakeFile
