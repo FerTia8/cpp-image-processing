@@ -48,3 +48,8 @@ jobs:
           git commit -a -m "[BOT] Github Actions deleted residual files! Check has passed."
           git push origin HEAD:$(echo $GITHUB_HEAD_REF | sed 's/refs\/heads\///')
         fi
+    
+    - name: Run Benchmark
+      run: |
+        make benchmarks
+        ./benchmarks
