@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "Image.hpp"
 
 namespace prog
@@ -30,13 +31,22 @@ namespace prog
     return h_;
   }
 
+  Color** Image::get_ptr() const 
+  {
+    return data;
+  }
+
   Color& Image::at(int x, int y)
   {
+    if (x < 0 || y < 0 || x >= w_ || y >= h_) throw std::out_of_range("Value out of range!");
+
     return data[x][y];
   }
 
   const Color& Image::at(int x, int y) const
   {
+    if (x < 0 || y < 0 || x >= w_ || y >= h_) throw std::out_of_range("Value out of range!");
+    
     return data[x][y];
   }
 }

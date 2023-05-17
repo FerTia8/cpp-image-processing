@@ -15,6 +15,7 @@ namespace prog
     ~Image();
     int width() const;
     int height() const;
+    Color** get_ptr() const;
     Color &at(int x, int y);
     const Color &at(int x, int y) const;
   };

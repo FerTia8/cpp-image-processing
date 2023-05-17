@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <vector>
 #include <future>
+#include <chrono>
+#include <time.h>
 #include "Script.hpp"
 #include "PNG.hpp"
 #include "XPM2.hpp"
@@ -53,55 +55,107 @@ namespace prog {
             } 
             // TODO ...
             if (command == "invert") {
+                clock_t start = clock();
                 invert();
+                clock_t end = clock();
+                double execution_time = double(end - start) / CLOCKS_PER_SEC;
+                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "to_gray_scale") {
+                clock_t start = clock();
                 to_gray_scale();
+                clock_t end = clock();
+                double execution_time = double(end - start) / CLOCKS_PER_SEC;
+                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "replace") {
+                clock_t start = clock();
                 replace();
+                clock_t end = clock();
+                double execution_time = double(end - start) / CLOCKS_PER_SEC;
+                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "fill") {
+                clock_t start = clock();
                 fill();
+                clock_t end = clock();
+                double execution_time = double(end - start) / CLOCKS_PER_SEC;
+                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "h_mirror") {
+                clock_t start = clock();
                 h_mirror();
+                clock_t end = clock();
+                double execution_time = double(end - start) / CLOCKS_PER_SEC;
+                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "v_mirror") {
+                clock_t start = clock();
                 v_mirror();
+                clock_t end = clock();
+                double execution_time = double(end - start) / CLOCKS_PER_SEC;
+                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "add") {
+                clock_t start = clock();
                 add();
+                clock_t end = clock();
+                double execution_time = double(end - start) / CLOCKS_PER_SEC;
+                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "crop") {
+                clock_t start = clock();
                 crop();
+                clock_t end = clock();
+                double execution_time = double(end - start) / CLOCKS_PER_SEC;
+                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "rotate_left") {
+                clock_t start = clock();
                 rotate_left();
+                clock_t end = clock();
+                double execution_time = double(end - start) / CLOCKS_PER_SEC;
+                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "rotate_right") {
+                clock_t start = clock();
                 rotate_right();
+                clock_t end = clock();
+                double execution_time = double(end - start) / CLOCKS_PER_SEC;
+                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "median_filter") {
+                clock_t start = clock();
                 median_filter();
+                clock_t end = clock();
+                double execution_time = double(end - start) / CLOCKS_PER_SEC;
+                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "xpm2_open") {
+                clock_t start = clock();
                 xpm2_open();
+                clock_t end = clock();
+                double execution_time = double(end - start) / CLOCKS_PER_SEC;
+                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "xpm2_save") {
+                clock_t start = clock();
                 xpm2_save();
+                clock_t end = clock();
+                double execution_time = double(end - start) / CLOCKS_PER_SEC;
+                std::cout << execution_time << endl;
                 continue;
             } 
 
@@ -140,12 +194,13 @@ namespace prog {
     void Script::invert() {
         //inverts the colors of the current image
 
-        //multi-threading
+        //simultaneously inverts the four corners of the image
         std::future<void> ft1 = std::async(invert_thread, 0, 0, image->width() / 2, image->height() / 2, image);
         std::future<void> ft2 = std::async(invert_thread, image->width() / 2, 0, image->width(), image->height() / 2, image);
         std::future<void> ft3 = std::async(invert_thread, 0, image->height() / 2, image->width() / 2, image->height(), image);
         std::future<void> ft4 = std::async(invert_thread, image->width() / 2, image->height() / 2, image->width(), image->height(), image);
 
+        //wait for all the threads to finish
         ft1.wait();
         ft2.wait();
         ft3.wait();
@@ -177,7 +232,8 @@ namespace prog {
         }}
     }
     void Script::fill() {
-        //...
+        //fills the given area with a specified color
+
         int x, y, w, h, r, g, b;
         input >> x >> y >> w >> h >> r >> g >> b;
         const Color fill_ {(rgb_value) r, (rgb_value) g, (rgb_value) b};
@@ -188,19 +244,20 @@ namespace prog {
         }}
     }
     void Script::h_mirror() {
-        //...
-        for (int ix = 0; ix < image->width() / 2; ix++) {
-        for (int iy = 0; iy < image->height(); iy++) {
-            Color& left = image->at(ix, iy);
-            Color& right = image->at(image->width() - 1 - ix, iy);
-            Color temp {left};
+        //mirrors horizontally
 
-            left = right;
-            right = temp;
-        }}
+        Color** raw_data = image->get_ptr();
+
+        for (int ix = 0; ix < image->width() / 2; ix++) {
+            Color* temp {raw_data[ix]};
+
+            raw_data[ix] = raw_data[image->width() - 1 - ix];
+            raw_data[image->width() - 1 - ix] = temp;
+        }
     }
     void Script::v_mirror() {
-        //...
+        //mirrors vertically
+
         for (int ix = 0; ix < image->width(); ix++) {
         for (int iy = 0; iy < image->height() / 2; iy++) {
             Color& left = image->at(ix, iy);
@@ -211,51 +268,44 @@ namespace prog {
             right = temp;
         }}
     }
-    void add_thread(int x, int y, int start_x, int start_y, int end_x, int end_y, int r, int g, int b, Image* im, Image* image) {
-        for (int ix = start_x; ix < end_x; ix++) {
-        for (int iy = start_y; iy < end_y; iy++) {
-            const Color pixel_from = im->at(ix, iy);
-
-            if (pixel_from.red() == r && pixel_from.green() == g && pixel_from.blue() == b) continue;
-            else image->at(ix - start_x + x, iy - start_y + y) = pixel_from;
-        }}
-    }
     void Script::add() {
-        //...
+        //adds an image to the current loaded image given the upper left point
+
         std::string filename;
         int x, y, r, g, b;
         input >> filename >> r >> g >> b >> x >> y;
-        Image* im = loadFromPNG(filename);
+        Image* loaded = loadFromPNG(filename);
 
-        std::future<void> ft1 = std::async(add_thread, x, y, 0, 0, im->width() / 2, im->height() / 2, r, g, b, im, image);
-        std::future<void> ft2 = std::async(add_thread, x + im->width() / 2, y, im->width() / 2, 0, im->width(), im->height() / 2, r, g, b, im, image);
-        std::future<void> ft3 = std::async(add_thread, x, y + im->height() / 2, 0, im->height() / 2, im->width() / 2, im->height(), r, g, b, im, image);
-        std::future<void> ft4 = std::async(add_thread, x + im->width() / 2, y + im->height() / 2, im->width() / 2, im->height() / 2, im->width(), im->height(), r, g, b, im, image);
+        for (int ix = 0; ix < loaded->width(); ix++) {
+        for (int iy = 0; iy < loaded->height(); iy++) {
+            const Color pixel_from = loaded->at(ix, iy);
 
-        ft1.wait();
-        ft2.wait();
-        ft3.wait();
-        ft4.wait();
+            if (pixel_from.red() == r && pixel_from.green() == g && pixel_from.blue() == b) continue;
+            else image->at(ix + x, iy + y) = pixel_from;
+        }}
 
-        delete im;
+        delete loaded;
     }
     void Script::crop() {
-        //...
+        //crops the image given the upper left corner and the dimensions of the cropped image
+
         int x, y, w, h;
         input >> x >> y >> w >> h;
         Image* cropped_image = new Image(w, h);
 
+        Color** raw_data_o = image->get_ptr();
+        Color** raw_data_c = cropped_image->get_ptr();
+
         for (int ix = x; ix < x + w; ix++) {
-        for (int iy = y; iy < y + h; iy++) {
-            cropped_image->at(ix - x, iy - y) = image->at(ix, iy);
-        }}
+            std::copy(raw_data_o[ix] + y, raw_data_o[ix] + y + h, raw_data_c[ix - x]);
+        }
 
         delete image;
         image = cropped_image;
     }
-
     void Script::rotate_left() {
-        //...
+        //rotates the image left
+
         Image* rotated_image = new Image(image->height(), image->width());
 
         for (int ix = 0; ix < image->width(); ix++) {
@@ -266,9 +316,9 @@ namespace prog {
         delete image;
         image = rotated_image;
     }
-
     void Script::rotate_right() {
-        //...
+        //rotates the image right
+
         Image* rotated_image = new Image(image->height(), image->width());
 
         for (int ix = 0; ix < image->width(); ix++) {
@@ -280,6 +330,8 @@ namespace prog {
         image = rotated_image;
     }
     rgb_value median(vector<rgb_value> v) {
+        //median of a vector
+
         int middle = v.size() / 2;
         
         std::sort(v.begin(), v.end());
@@ -306,7 +358,7 @@ namespace prog {
 
             for (int wy = - ws / 2; wy <= ws / 2; wy++) {
             if (iy + wy < 0 || iy + wy >= original->height()) continue;
-                red_values.push_back(original->at(ix + wx, iy + wy).red());
+                red_values.push_back(original->at(ix + wx, iy + wy) .red());
                 green_values.push_back(original->at(ix + wx, iy + wy).green());
                 blue_values.push_back(original->at(ix + wx, iy + wy).blue());
             }}
@@ -320,17 +372,19 @@ namespace prog {
         }}
     }
     void Script::median_filter() {
-        //...
+        //aplies a median filter to the whole image given a specific window size
+
         int ws;
         input >> ws;
         Image* filtered_image = new Image(image->width(), image->height());
 
-        //multi-threading
-        std::future<void> ft1 = std::async(filter_thread, 0, 0, ws, image->width() / 2, image->height() / 2, image, filtered_image); //first quarter
-        std::future<void> ft2 = std::async(filter_thread, image->width() / 2, 0, ws, image->width(), image->height() / 2, image, filtered_image); //second quarter
-        std::future<void> ft3 = std::async(filter_thread, 0, image->height() / 2, ws, image->width() / 2, image->height(), image, filtered_image); //third quarter
-        std::future<void> ft4 = std::async(filter_thread, image->width() / 2, image->height() / 2, ws, image->width(), image->height(), image, filtered_image); //forth quarter
+        //simultaneously aplies the filter at the four corners of the image
+        std::future<void> ft1 = std::async(filter_thread, 0, 0, ws, image->width() / 2, image->height() / 2, image, filtered_image); //first quadrant
+        std::future<void> ft2 = std::async(filter_thread, image->width() / 2, 0, ws, image->width(), image->height() / 2, image, filtered_image); //second quadrant
+        std::future<void> ft3 = std::async(filter_thread, 0, image->height() / 2, ws, image->width() / 2, image->height(), image, filtered_image); //third quadran
+        std::future<void> ft4 = std::async(filter_thread, image->width() / 2, image->height() / 2, ws, image->width(), image->height(), image, filtered_image); //forth quadrant
 
+        //wait for all the threads to finish
         ft1.wait();
         ft2.wait();
         ft3.wait();
@@ -340,14 +394,16 @@ namespace prog {
         image = filtered_image;
     }
     void Script::xpm2_open() {
-        //...
+        //loads a xmp2 image
+
         clear_image_if_any();
         string filename;
         input >> filename;
         image = loadFromXPM2(filename);
     }
     void Script::xpm2_save() {
-        //...
+        //saves the current image in the xpm2 format
+
         string filename;
         input >> filename;
         saveToXPM2(filename, image);
