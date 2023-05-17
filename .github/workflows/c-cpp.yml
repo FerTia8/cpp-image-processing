@@ -51,5 +51,5 @@ jobs:
     
     - name: Run Benchmark
       run: |
-        make benchmarks
+        make benchmarks test
         ./benchmarks
