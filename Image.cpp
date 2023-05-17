@@ -17,10 +17,10 @@ namespace prog
   Image::~Image()
   {
     for (int i = 0; i < w_; i++) {
-      delete data[i];
+      delete[] data[i];
     }
 
-    delete data;
+    delete[] data;
   }
   int Image::width() const
   {
@@ -46,7 +46,7 @@ namespace prog
   const Color& Image::at(int x, int y) const
   {
     if (x < 0 || y < 0 || x >= w_ || y >= h_) throw std::out_of_range("Value out of range!");
-    
+
     return data[x][y];
   }
 }
