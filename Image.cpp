@@ -3,10 +3,8 @@
 
 namespace prog
 {
-  Image::Image(int w, int h, const Color &fill)
+  Image::Image(int w, int h, const Color &fill) : w_(w), h_(h)
   {
-    w_ = w;
-    h_ = h;
     data = new Color*[w];
 
     for (int iw = 0; iw < w; iw++) {
