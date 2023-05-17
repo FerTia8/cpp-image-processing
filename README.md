@@ -19,7 +19,7 @@
 
 <h2>Key learnings 📖</h2>
 
-<h2>Installation ⬇️</h2>
+<h2>Install and Run ⬇️</h2>
 
 ## Project status 🔋
 - <b>21/04/2023</b>: First Setup
