@@ -295,6 +295,8 @@ namespace prog {
         input >> x >> y >> w >> h;
         Image* cropped_image = new Image(w, h);
 
+        if (x + w > image->width() || y + h > image->height()) throw std::out_of_range("Croping region out of range!");
+
         Color** raw_data_o = image->get_ptr();
         Color** raw_data_c = cropped_image->get_ptr();
 
