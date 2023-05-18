@@ -1,0 +1,55 @@
+name: C/C++ CI
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+
+
+    - name: Remove Residual Files and Run MakeFile
+      run: |
+        rm -f test runscript test_log.txt
+        make
+
+    - name: Run Tests
+      run: |
+        ./test > test_output.txt 2>&1
+        cat test_output.txt
+        if grep -q "Failed tests: 0" test_output.txt; then
+          echo "All tests passed!"
+        else
+          echo "Not all tests passed."
+          exit 1
+        fi
+        rm -f test_output.txt
+
+
+    - name: Commiting If Residual Files Found and All Tests Pass
+      run: |
+        git config --global user.email github-actions@github.com
+        git config --global user.name github-actions
+        rm -f test runscript test_log.txt 
+        find output -type f ! -name '.output' -delete
+        if [ -z "$(git status --porcelain)" ]; then
+          echo "No residual files found!"
+        else
+          git commit -a -m "[BOT] Github Actions deleted residual files! Check has passed."
+          git push origin HEAD:$(echo $GITHUB_HEAD_REF | sed 's/refs\/heads\///')
+        fi
+    
+    - name: Run Benchmark
+      run: |
+        make benchmarks test
+        ./benchmarks
