@@ -182,29 +182,16 @@ namespace prog {
         input >> filename;
         saveToPNG(filename, image);
     }
-    void invert_thread(int x, int y, int mx, int my, Image* image) {
-        for (int ix = x; ix < mx; ix++) {
-        for (int iy = y; iy < my; iy++) {
+    void Script::invert() {
+        //inverts the colors of the current image
+
+        for (int ix = 0; ix < image->width(); ix++) {
+        for (int iy = 0; iy < image->height(); iy++) {
             Color& pixel = image->at(ix, iy);
             pixel.red() = 255 - pixel.red();
             pixel.green() = 255 - pixel.green();
             pixel.blue() = 255 - pixel.blue();
         }}
-    }
-    void Script::invert() {
-        //inverts the colors of the current image
-
-        //splits the image in 4 and inverts them simultaneously
-        std::future<void> ft1 = std::async(invert_thread, 0, 0, image->width() / 2, image->height() / 2, image);
-        std::future<void> ft2 = std::async(invert_thread, image->width() / 2, 0, image->width(), image->height() / 2, image);
-        std::future<void> ft3 = std::async(invert_thread, 0, image->height() / 2, image->width() / 2, image->height(), image);
-        std::future<void> ft4 = std::async(invert_thread, image->width() / 2, image->height() / 2, image->width(), image->height(), image);
-
-        //wait for all the threads to finish
-        ft1.wait();
-        ft2.wait();
-        ft3.wait();
-        ft4.wait();
     }
     void Script::to_gray_scale() {
         //gray scales the current image
