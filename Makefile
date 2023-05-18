@@ -10,7 +10,7 @@ CXXFLAGS+= -Wall -Wuninitialized -Werror
 
 # Generate code with debugging information
 # (for use with a debugger like gdb)
-CXXFLAGS+= -g 
+CXXFLAGS+= -g -pg
 
 
 # Enable ASan (Address Sanitizer) 
