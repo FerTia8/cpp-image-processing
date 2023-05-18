@@ -1,12 +1,9 @@
 #include <iostream>
 #include <map>
-#include <fstream>
 #include <sstream>
 #include <algorithm>
 #include <vector>
 #include <future>
-#include <chrono>
-#include <time.h>
 #include "Script.hpp"
 #include "PNG.hpp"
 #include "XPM2.hpp"
@@ -227,7 +224,7 @@ namespace prog {
 
         int x, y, w, h;
         input >> x >> y >> w >> h;
-        Image* cropped_image = new Image(w, h);
+        auto cropped_image = new Image(w, h);
 
         if (x + w > image->width() || y + h > image->height()) throw std::out_of_range("Cropping region out of range!");
 
@@ -244,7 +241,7 @@ namespace prog {
     void Script::rotate_left() {
         //rotates the image left
 
-        Image* rotated_image = new Image(image->height(), image->width());
+        auto rotated_image = new Image(image->height(), image->width());
 
         for (int ix = 0; ix < image->width(); ix++) {
         for (int iy = 0; iy < image->height(); iy++) {
@@ -257,7 +254,7 @@ namespace prog {
     void Script::rotate_right() {
         //rotates the image right
 
-        Image* rotated_image = new Image(image->height(), image->width());
+        auto rotated_image = new Image(image->height(), image->width());
 
         for (int ix = 0; ix < image->width(); ix++) {
         for (int iy = 0; iy < image->height(); iy++) {
@@ -270,7 +267,7 @@ namespace prog {
     rgb_value median(vector<rgb_value> v) {
         //median of a vector
 
-        int middle = v.size() / 2;
+        size_t middle = v.size() / 2;
         
         std::sort(v.begin(), v.end());
 
@@ -314,7 +311,7 @@ namespace prog {
 
         int ws;
         input >> ws;
-        Image* filtered_image = new Image(image->width(), image->height());
+        auto filtered_image = new Image(image->width(), image->height());
 
         //splits the image in 4 and applies the filter to them simultaneously
         std::future<void> ft1 = std::async(filter_thread, 0, 0, ws, image->width() / 2, image->height() / 2, image, filtered_image); //first quadrant
