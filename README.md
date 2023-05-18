@@ -65,7 +65,11 @@ $ make
 - <b>17/05/2023</b>: Finishing README/Documentation and Commenting.
 - <b>19/05/2023</b>: Delivery! ✅
 
-<h2>Learnings 📖</h2>
+## Learnings 📖
+- Consolidated our knowledge in the <b>C++</b> Language;
+- Improved <b>File Manipulation</b> skills;
+- First hands-on Maintaining a Project as a Team using <b>Git</b>;
+- Developed <b>Team</b> Working skills;
 
 <h2>Copyright</h2>
 
