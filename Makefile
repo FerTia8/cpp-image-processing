@@ -25,13 +25,13 @@ CXXFLAGS+= -fsanitize=address -fsanitize=undefined
 
 
 # C++ source files to consider in compilation for all programs
-COMMON_CPP_FILES=Color.cpp Image.cpp Script.cpp PNG.cpp XPM2.cpp 
+COMMON_CPP_FILES=Color.cpp Image.cpp Script.cpp PNG.cpp XPM2.cpp
 
 # C++ header files to consider in compilation
 HEADERS=${COMMON_CPP_FILES:.cpp=.hpp}
 
 
-PROGRAMS=runscript test
+PROGRAMS=runscript test benchmark
 
 all: $(PROGRAMS)
 
@@ -41,6 +41,9 @@ runscript:  $(HEADERS) $(COMMON_CPP_FILES) runscript.cpp
 
 test:  $(HEADERS) $(COMMON_CPP_FILES) test.cpp
 	$(CXX) -o test test.cpp $(COMMON_CPP_FILES) $(CXXFLAGS)
+
+benchmark: benchmark.cpp
+	$(CXX) -o benchmark benchmark.cpp $(CXXFLAGS)
 
 clean: 
 	rm -fr *.dSYM $(PROGRAMS)
