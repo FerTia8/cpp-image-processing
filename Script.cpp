@@ -194,7 +194,7 @@ namespace prog {
     void Script::invert() {
         //inverts the colors of the current image
 
-        //simultaneously inverts the four corners of the image
+        //splits the image in 4 and inverts them simultaneously
         std::future<void> ft1 = std::async(invert_thread, 0, 0, image->width() / 2, image->height() / 2, image);
         std::future<void> ft2 = std::async(invert_thread, image->width() / 2, 0, image->width(), image->height() / 2, image);
         std::future<void> ft3 = std::async(invert_thread, 0, image->height() / 2, image->width() / 2, image->height(), image);
@@ -208,6 +208,7 @@ namespace prog {
     }
     void Script::to_gray_scale() {
         //gray scales the current image
+
         for (int x = 0; x < image->width(); x++) {
         for (int y = 0; y < image->height(); y++) {
             Color& pixel = image->at(x, y);
@@ -217,6 +218,7 @@ namespace prog {
     }
     void Script::replace() {
         //replaces the color (r1, g1, b1) for (r2, g2, b2)
+
         int r1, g1, b1, r2, g2, b2;
         input >> r1 >> g1 >> b1 >> r2 >> g2 >> b2;
 
@@ -378,7 +380,7 @@ namespace prog {
         input >> ws;
         Image* filtered_image = new Image(image->width(), image->height());
 
-        //simultaneously aplies the filter at the four corners of the image
+        //splits the image in 4 and applies the filter to them simultaneously
         std::future<void> ft1 = std::async(filter_thread, 0, 0, ws, image->width() / 2, image->height() / 2, image, filtered_image); //first quadrant
         std::future<void> ft2 = std::async(filter_thread, image->width() / 2, 0, ws, image->width(), image->height() / 2, image, filtered_image); //second quadrant
         std::future<void> ft3 = std::async(filter_thread, 0, image->height() / 2, ws, image->width() / 2, image->height(), image, filtered_image); //third quadran
