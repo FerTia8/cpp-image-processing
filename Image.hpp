@@ -8,6 +8,7 @@ namespace prog
   {
   private:
     Color** data;
+    //pointer to an array containing arrays of objects of type Color
     int w_;
     int h_;
   public:
@@ -16,6 +17,7 @@ namespace prog
     int width() const;
     int height() const;
     Color** get_ptr() const;
+    //gets the pointer to the raw data, for faster image manipulation
     Color &at(int x, int y);
     const Color &at(int x, int y) const;
   };
