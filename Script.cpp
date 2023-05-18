@@ -229,7 +229,7 @@ namespace prog {
         input >> x >> y >> w >> h;
         Image* cropped_image = new Image(w, h);
 
-        if (x + w > image->width() || y + h > image->height()) throw std::out_of_range("Croping region out of range!");
+        if (x + w > image->width() || y + h > image->height()) throw std::out_of_range("Cropping region out of range!");
 
         Color** raw_data_o = image->get_ptr();
         Color** raw_data_c = cropped_image->get_ptr();
@@ -310,7 +310,7 @@ namespace prog {
         }}
     }
     void Script::median_filter() {
-        //aplies a median filter to the whole image given a specific window size
+        //applies a median filter to the whole image given a specific window size
 
         int ws;
         input >> ws;
@@ -319,7 +319,7 @@ namespace prog {
         //splits the image in 4 and applies the filter to them simultaneously
         std::future<void> ft1 = std::async(filter_thread, 0, 0, ws, image->width() / 2, image->height() / 2, image, filtered_image); //first quadrant
         std::future<void> ft2 = std::async(filter_thread, image->width() / 2, 0, ws, image->width(), image->height() / 2, image, filtered_image); //second quadrant
-        std::future<void> ft3 = std::async(filter_thread, 0, image->height() / 2, ws, image->width() / 2, image->height(), image, filtered_image); //third quadran
+        std::future<void> ft3 = std::async(filter_thread, 0, image->height() / 2, ws, image->width() / 2, image->height(), image, filtered_image); //third quadrant
         std::future<void> ft4 = std::async(filter_thread, image->width() / 2, image->height() / 2, ws, image->width(), image->height(), image, filtered_image); //forth quadrant
 
         //wait for all the threads to finish
