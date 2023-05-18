@@ -55,110 +55,57 @@ namespace prog {
             } 
             // TODO ...
             if (command == "invert") {
-                clock_t start = clock();
                 invert();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "to_gray_scale") {
-                clock_t start = clock();
                 to_gray_scale();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "replace") {
-                clock_t start = clock();
                 replace();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "fill") {
-                clock_t start = clock();
                 fill();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "h_mirror") {
-                clock_t start = clock();
                 h_mirror();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "v_mirror") {
-                clock_t start = clock();
                 v_mirror();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "add") {
-                clock_t start = clock();
                 add();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "crop") {
-                clock_t start = clock();
                 crop();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "rotate_left") {
-                clock_t start = clock();
                 rotate_left();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "rotate_right") {
-                clock_t start = clock();
                 rotate_right();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "median_filter") {
-                clock_t start = clock();
                 median_filter();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "xpm2_open") {
-                clock_t start = clock();
                 xpm2_open();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "xpm2_save") {
-                clock_t start = clock();
                 xpm2_save();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
-            } 
-
+            }
         }
     }
     void Script::open() {
