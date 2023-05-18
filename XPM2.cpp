@@ -10,7 +10,7 @@
 namespace prog {
     int char_to_int(char& c) {
         //converts a character to their value in base16
-        char c_upper = toupper(c);
+        char c_upper = (char) toupper(c);
         if (c_upper >= '0' && c_upper <= '9') return c_upper - '0';
         else if (c_upper >= 'A' && c_upper <= 'F') return c_upper - 'A' + 10;
         else return -1;
@@ -61,7 +61,7 @@ namespace prog {
         }
 
         //create a new image with the given proportions
-        Image* new_image = new Image(width, height);
+        auto new_image = new Image(width, height);
 
         //writes each character of the file to a pixel in the image
         for (int iy = 0; iy < height; iy++) {
@@ -91,7 +91,7 @@ namespace prog {
 
         int ascii_counter {0};
         //writes each color and their respective char to the file
-        for (auto color : colors) {
+        for (const auto& color : colors) {
             if (ascii_counter == (int) ascii_str.size()) throw std::out_of_range("string out of range");
             out << ascii_str[ascii_counter] << ' ' << 'c' << ' ' << color << '\n';
             color_map[color] = ascii_str[ascii_counter];

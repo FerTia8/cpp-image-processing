@@ -1,12 +1,9 @@
 #include <iostream>
 #include <map>
-#include <fstream>
 #include <sstream>
 #include <algorithm>
 #include <vector>
 #include <future>
-#include <chrono>
-#include <time.h>
 #include "Script.hpp"
 #include "PNG.hpp"
 #include "XPM2.hpp"
@@ -55,110 +52,57 @@ namespace prog {
             } 
             // TODO ...
             if (command == "invert") {
-                clock_t start = clock();
                 invert();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "to_gray_scale") {
-                clock_t start = clock();
                 to_gray_scale();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "replace") {
-                clock_t start = clock();
                 replace();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "fill") {
-                clock_t start = clock();
                 fill();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "h_mirror") {
-                clock_t start = clock();
                 h_mirror();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "v_mirror") {
-                clock_t start = clock();
                 v_mirror();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "add") {
-                clock_t start = clock();
                 add();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             } 
             if (command == "crop") {
-                clock_t start = clock();
                 crop();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "rotate_left") {
-                clock_t start = clock();
                 rotate_left();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "rotate_right") {
-                clock_t start = clock();
                 rotate_right();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "median_filter") {
-                clock_t start = clock();
                 median_filter();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "xpm2_open") {
-                clock_t start = clock();
                 xpm2_open();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
             }
             if (command == "xpm2_save") {
-                clock_t start = clock();
                 xpm2_save();
-                clock_t end = clock();
-                double execution_time = double(end - start) / CLOCKS_PER_SEC;
-                std::cout << execution_time << endl;
                 continue;
-            } 
-
+            }
         }
     }
     void Script::open() {
@@ -182,29 +126,16 @@ namespace prog {
         input >> filename;
         saveToPNG(filename, image);
     }
-    void invert_thread(int x, int y, int mx, int my, Image* image) {
-        for (int ix = x; ix < mx; ix++) {
-        for (int iy = y; iy < my; iy++) {
+    void Script::invert() {
+        //inverts the colors of the current image
+
+        for (int ix = 0; ix < image->width(); ix++) {
+        for (int iy = 0; iy < image->height(); iy++) {
             Color& pixel = image->at(ix, iy);
             pixel.red() = 255 - pixel.red();
             pixel.green() = 255 - pixel.green();
             pixel.blue() = 255 - pixel.blue();
         }}
-    }
-    void Script::invert() {
-        //inverts the colors of the current image
-
-        //splits the image in 4 and inverts them simultaneously
-        std::future<void> ft1 = std::async(invert_thread, 0, 0, image->width() / 2, image->height() / 2, image);
-        std::future<void> ft2 = std::async(invert_thread, image->width() / 2, 0, image->width(), image->height() / 2, image);
-        std::future<void> ft3 = std::async(invert_thread, 0, image->height() / 2, image->width() / 2, image->height(), image);
-        std::future<void> ft4 = std::async(invert_thread, image->width() / 2, image->height() / 2, image->width(), image->height(), image);
-
-        //wait for all the threads to finish
-        ft1.wait();
-        ft2.wait();
-        ft3.wait();
-        ft4.wait();
     }
     void Script::to_gray_scale() {
         //gray scales the current image
@@ -293,7 +224,9 @@ namespace prog {
 
         int x, y, w, h;
         input >> x >> y >> w >> h;
-        Image* cropped_image = new Image(w, h);
+        auto cropped_image = new Image(w, h);
+
+        if (x + w > image->width() || y + h > image->height()) throw std::out_of_range("Cropping region out of range!");
 
         Color** raw_data_o = image->get_ptr();
         Color** raw_data_c = cropped_image->get_ptr();
@@ -308,7 +241,7 @@ namespace prog {
     void Script::rotate_left() {
         //rotates the image left
 
-        Image* rotated_image = new Image(image->height(), image->width());
+        auto rotated_image = new Image(image->height(), image->width());
 
         for (int ix = 0; ix < image->width(); ix++) {
         for (int iy = 0; iy < image->height(); iy++) {
@@ -321,7 +254,7 @@ namespace prog {
     void Script::rotate_right() {
         //rotates the image right
 
-        Image* rotated_image = new Image(image->height(), image->width());
+        auto rotated_image = new Image(image->height(), image->width());
 
         for (int ix = 0; ix < image->width(); ix++) {
         for (int iy = 0; iy < image->height(); iy++) {
@@ -334,7 +267,7 @@ namespace prog {
     rgb_value median(vector<rgb_value> v) {
         //median of a vector
 
-        int middle = v.size() / 2;
+        size_t middle = v.size() / 2;
         
         std::sort(v.begin(), v.end());
 
@@ -374,16 +307,16 @@ namespace prog {
         }}
     }
     void Script::median_filter() {
-        //aplies a median filter to the whole image given a specific window size
+        //applies a median filter to the whole image given a specific window size
 
         int ws;
         input >> ws;
-        Image* filtered_image = new Image(image->width(), image->height());
+        auto filtered_image = new Image(image->width(), image->height());
 
         //splits the image in 4 and applies the filter to them simultaneously
         std::future<void> ft1 = std::async(filter_thread, 0, 0, ws, image->width() / 2, image->height() / 2, image, filtered_image); //first quadrant
         std::future<void> ft2 = std::async(filter_thread, image->width() / 2, 0, ws, image->width(), image->height() / 2, image, filtered_image); //second quadrant
-        std::future<void> ft3 = std::async(filter_thread, 0, image->height() / 2, ws, image->width() / 2, image->height(), image, filtered_image); //third quadran
+        std::future<void> ft3 = std::async(filter_thread, 0, image->height() / 2, ws, image->width() / 2, image->height(), image, filtered_image); //third quadrant
         std::future<void> ft4 = std::async(filter_thread, image->width() / 2, image->height() / 2, ws, image->width(), image->height(), image, filtered_image); //forth quadrant
 
         //wait for all the threads to finish
