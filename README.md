@@ -16,9 +16,7 @@
   - Bruno Coutinho Pereira (up202206351@fe.up.pt);
   - Ricardo Alexandre Alves Ramos (up202206349@fe.up.pt);
   - Tiago Fernando da Costa Ferreira (up202207311@fe.up.pt);
-
-<h2>Overview 🎯</h2>
-
+  
 <h2>Install and Run ⬇️</h2>
 Setting up the project is fairly easy and only a few steps are needed. <br></br>
 
@@ -46,9 +44,9 @@ $ make
   $ ./runscript scripts/<script_file1.txt> scripts/<script_file2.txt> (...) 
   ```
   
-  - ```test```: ???<br></br>
+  - ```test```: file used to test each command. Pass no arguments to run all tests.<br></br>
   ```sh
-  $ ???
+  $ ./test <open> <blank> <save> <invert> <to_gray_scale> <replace> <h_mirror> <v_mirror> <add> <crop> <rotate_left> <rotate_left> <rotate_right> <median_filter> <xpm2_open> <xpm2_save>
   ```
   
   - ```benchmark```: times each function and logs the result on ```benchmarks.txt```:<br></br>
