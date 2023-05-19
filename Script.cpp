@@ -49,8 +49,7 @@ namespace prog {
             if (command == "save") {
                 save();
                 continue;
-            } 
-            // TODO ...
+            }
             if (command == "invert") {
                 invert();
                 continue;
@@ -280,10 +279,10 @@ namespace prog {
             return values[middle];
         }
     }
-    void filter_thread(int x, int y, int ws, int mx, int my, Image* original, Image* img) {
+    void filter_thread(int start_x, int start_y, int ws, int end_x, int end_y, Image* original, Image* img) {
         //iterate through every point inside the given boundaries
-        for (int ix = x; ix < mx; ix++) {
-        for (int iy = y; iy < my; iy++) {
+        for (int ix = start_x; ix < end_x; ix++) {
+        for (int iy = start_y; iy < end_y; iy++) {
             auto red_values = new rgb_value[ws * ws];
             auto green_values = new rgb_value[ws * ws];
             auto blue_values = new rgb_value[ws * ws];
@@ -320,7 +319,7 @@ namespace prog {
         input >> ws;
         auto filtered_image = new Image(image->width(), image->height());
 
-        //splits the image in 4 and applies the filter to them simultaneously
+        //splits the image in 4 and applies the filter asynchronously
         std::future<void> ft1 = std::async(filter_thread, 0, 0, ws, image->width() / 2, image->height() / 2, image, filtered_image); //first quadrant
         std::future<void> ft2 = std::async(filter_thread, image->width() / 2, 0, ws, image->width(), image->height() / 2, image, filtered_image); //second quadrant
         std::future<void> ft3 = std::async(filter_thread, 0, image->height() / 2, ws, image->width() / 2, image->height(), image, filtered_image); //third quadrant
