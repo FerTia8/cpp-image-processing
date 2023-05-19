@@ -264,27 +264,31 @@ namespace prog {
         delete image;
         image = rotated_image;
     }
-    rgb_value median(vector<rgb_value> v) {
+    rgb_value median(rgb_value values[], int count) {
         //median of a vector
 
-        size_t middle = v.size() / 2;
+        int middle = count / 2;
         
-        std::sort(v.begin(), v.end());
+        std::sort(values, values + count);
 
-        if (v.size() % 2 == 0) {
-            int left = v[middle - 1];
-            int right = v[middle];
+        if (count % 2 == 0) {
+            int left = values[middle - 1];
+            int right = values[middle];
             return (left + right) / 2;
         } 
         else {
-            return v[middle];
+            return values[middle];
         }
     }
     void filter_thread(int x, int y, int ws, int mx, int my, Image* original, Image* img) {
         //iterate through every point inside the given boundaries
         for (int ix = x; ix < mx; ix++) {
         for (int iy = y; iy < my; iy++) {
-            vector<rgb_value> red_values, green_values, blue_values;
+            auto red_values = new rgb_value[ws * ws];
+            auto green_values = new rgb_value[ws * ws];
+            auto blue_values = new rgb_value[ws * ws];
+
+            int counter {0};
             rgb_value r_, g_, b_;
                 
             //iterate through every (valid) neighborhood point
@@ -293,14 +297,15 @@ namespace prog {
 
             for (int wy = - ws / 2; wy <= ws / 2; wy++) {
             if (iy + wy < 0 || iy + wy >= original->height()) continue;
-                red_values.push_back(original->at(ix + wx, iy + wy) .red());
-                green_values.push_back(original->at(ix + wx, iy + wy).green());
-                blue_values.push_back(original->at(ix + wx, iy + wy).blue());
+                red_values[counter] = original->at(ix + wx, iy + wy).red();
+                green_values[counter] = original->at(ix + wx, iy + wy).green();
+                blue_values[counter] = original->at(ix + wx, iy + wy).blue();
+                counter++;
             }}
 
-            r_ = median(red_values);
-            g_ = median(green_values);
-            b_ = median(blue_values);
+            r_ = median(red_values, counter);
+            g_ = median(green_values, counter);
+            b_ = median(blue_values, counter);
 
             //store the median value in a new image
             img->at(ix, iy) = {r_, g_, b_};
