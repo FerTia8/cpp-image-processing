@@ -309,6 +309,8 @@ namespace prog {
 
             //store the median value in a new image
             img->at(ix, iy) = {r_, g_, b_};
+
+            delete[] red_values; delete[] green_values; delete[] blue_values;
         }}
     }
     void Script::median_filter() {
