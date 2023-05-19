@@ -70,6 +70,8 @@ $ make
 - Improved <b>File Manipulation</b> skills;
 - First hands-on Maintaining a Project as a Team using <b>Git</b>;
 - Developed <b>Team</b> Working skills;
+- Used benchmark and profiling tools for code optimization and memory leak prevention;
+- Learnt new C++ Standard Library;
 
 <h2>Copyright</h2>
 
